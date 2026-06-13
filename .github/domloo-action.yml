@@ -1,9 +1,25 @@
 name: 'Domloo Release Action'
 description: 'Smart release automation using Domloo Bot'
 author: 'Clay'
+name: 'Domloo Release Engine'
 
-runs:
-  using: 'composite'
+on:
+  workflow_call:
+
+jobs:
+  smart-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+  steps:
+    - name: Generate Token Si Bot
+      id: generate_token
+      uses: actions/create-github-app-token@v1
+      with:
+        app-id: ${{ secrets.DOMLOO_APP_ID }}
+        private-key: ${{ secrets.DOMLOO_APP_PRIVATE_KEY }}
+
   steps:
     - name: Generate Token Si Bot
       id: generate_token
@@ -20,7 +36,6 @@ runs:
 
     - name: Deteksi Trigger
       id: deteksi
-      shell: bash
       run: |
         if [ "${{ github.event_name }}" == "issue_comment" ]; then
           COMMENT_BODY="${{ github.event.comment.body }}"
@@ -29,7 +44,6 @@ runs:
         fi
 
     - name: Jalankan Otak Bot Pinter
-      shell: bash
       run: |
         echo "=== 1. SEARCHING LATEST TAG & ANCHOR COMMIT ==="
         LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.1.0-proto.0")
@@ -120,7 +134,6 @@ runs:
 
     - name: Update File Konfigurasi Projek (SED Engine)
       if: env.NEW_VERSION != ''
-      shell: bash
       run: |
         if [ -f "package.json" ]; then
           sed -i "s/\"version\": \".*\"/\"version\": \"${{ env.NEW_VERSION }}\"/g" package.json
@@ -131,7 +144,6 @@ runs:
 
     - name: Create Release Branch and Push
       if: env.NEW_VERSION != ''
-      shell: bash
       env:
         GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
         GH_TOKEN: ${{ steps.generate_token.outputs.token }}
