@@ -1,5 +1,4 @@
 name: 'Domloo Release Action'
-description: 'Smart release automation using Domloo Bot'
 
 on:
   workflow_call:
