@@ -2,6 +2,13 @@ name: 'Domloo Release Action'
 
 on:
   workflow_call:
+    # Kita sediakan input token opsional, mirip gaya Release Please
+    inputs:
+      token:
+        description: 'GitHub Token'
+        required: false
+        default: ${{ github.token }}
+        type: string
 
 jobs:
   smart-release:
@@ -10,18 +17,20 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - name: Generate Token Si Bot
-        id: generate_token
-        uses: actions/create-github-app-token@v1
+      # STEP GENERATE TOKEN DIHAPUS TOTAL
+
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
         with:
-          app-id: ${{ secrets.DOMLOO_APP_ID }}
-          private-key: ${{ secrets.DOMLOO_APP_PRIVATE_KEY }}
+          fetch-depth: 0
+          # Pakai token dari inputs/bawaan
+          token: ${{ inputs.token }}
   
       - name: Checkout Source Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ steps.generate_token.outputs.token }}
+          token: ${{ inputs.token }}
   
       - name: Deteksi Trigger
         id: deteksi
@@ -134,8 +143,8 @@ jobs:
       - name: Create Release Branch and Push
         if: env.NEW_VERSION != ''
         env:
-          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+          GITHUB_TOKEN: ${{ inputs.token }}
+          GH_TOKEN: ${{ inputs.token }}
         run: |
           git config --global user.name "domloo-release[bot]"
           git config --global user.email "$(gh api /users/domloo-release%5Bbot%5D -q .id)+domloo-release[bot]@users.noreply.github.com"
