@@ -20,6 +20,7 @@ async function run() {
 
     console.log("=== 1. SEARCHING LATEST TAG & ANCHOR COMMIT ===");
     let latestTag = shellExec('git describe --tags --abbrev=0');
+    console.log(`DEBUG: Result of git describe: "${latestTag}"`); // TAMBAHKAN INI
     if (!latestTag) {
       latestTag = "v0.1.0-proto.0";
     }
