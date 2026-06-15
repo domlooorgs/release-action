@@ -140,12 +140,15 @@ async function run() {
       nextVersion = setParts[1] || "";
     }
 
-    // Export buat internal lib action
+    // 1. Export buat standard @actions/core
     core.exportVariable('NEW_VERSION', nextVersion);
 
-    // Export langsung ke GITHUB_ENV biar Bash shell runner pasti dapet
+    // 2. FORCE WRITING ke GITHUB_ENV (Ini kunci biar step berikutnya kebaca)
     if (process.env.GITHUB_ENV) {
       fs.appendFileSync(process.env.GITHUB_ENV, `NEW_VERSION=${nextVersion}\n`);
+      console.log(`DEBUG: Wrote NEW_VERSION=${nextVersion} to GITHUB_ENV`);
+    } else {
+      console.log("DEBUG: GITHUB_ENV not found!");
     }
 
     // Write file current_changelog.md persis gaya echo > dan echo >>
