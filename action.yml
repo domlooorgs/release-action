@@ -1,39 +1,26 @@
 name: 'Domloo Release Action'
+description: 'Smart release automation using custom bot identities'
 
-on:
-  workflow_call:
-    # Kita sediakan input token opsional, mirip gaya Release Please
-    inputs:
-      token:
-        description: 'GitHub Token'
-        required: false
-        default: ${{ github.token }}
-        type: string
+inputs:
+  token:
+    description: 'GitHub Token'
+    required: false
+    default: ${{ github.token }}
 
-jobs:
-  smart-release:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ inputs.token || github.token }}
-          persist-credentials: false # TAMBAHIN INI
-  
-      - name: Deteksi Trigger
-        id: deteksi
-        run: |
-          if [ "${{ github.event_name }}" == "issue_comment" ]; then
-            COMMENT_BODY="${{ github.event.comment.body }}"
-            echo "COMMENT_FOUND=$COMMENT_BODY" >> $GITHUB_ENV
-            echo "IS_COMMENT=true" >> $GITHUB_ENV
-          fi
-  
+runs:
+  using: "composite" # Ini pembedanya, ngasih tahu GitHub kalau ini composite
+  steps:
+    - name: Deteksi Trigger
+      shell: bash # DI COMPOSITE WAJIB TULIS SHELL DI TIAP STEP RUN
+      run: |
+        if [ "${{ github.event_name }}" == "issue_comment" ]; then
+          COMMENT_BODY="${{ github.event.comment.body }}"
+          echo "COMMENT_FOUND=$COMMENT_BODY" >> $GITHUB_ENV
+          echo "IS_COMMENT=true" >> $GITHUB_ENV
+        fi
+
       - name: Jalankan Otak Bot Pinter
+        shell: bash
         env:
           GH_TOKEN: ${{ inputs.token || github.token }}
         run: |
@@ -126,6 +113,7 @@ jobs:
   
       - name: Update File Konfigurasi Projek (SED Engine)
         if: env.NEW_VERSION != ''
+        shell: bash
         run: |
           if [ -f "package.json" ]; then
             sed -i "s/\"version\": \".*\"/\"version\": \"${{ env.NEW_VERSION }}\"/g" package.json
@@ -136,6 +124,7 @@ jobs:
   
       - name: Create Release Branch and Push
         if: env.NEW_VERSION != ''
+        shell: bash
         env:
           GITHUB_TOKEN: ${{ inputs.token || github.token }}
           GH_TOKEN: ${{ inputs.token || github.token }}
