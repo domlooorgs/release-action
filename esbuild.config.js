@@ -6,7 +6,7 @@ async function build() {
     bundle: true,        // INI PENTING: Masukin semua node_modules ke bundle
     platform: 'node',    // Targetnya harus node
     target: 'node22',    // Samain sama versi runner GitHub Action
-    format: 'esm',
+    format: 'cjs',
     outdir: 'dist',
     minify: true,
     sourcemap: false,
