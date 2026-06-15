@@ -19,167 +19,167 @@ runs:
           echo "IS_COMMENT=true" >> $GITHUB_ENV
         fi
 
-      - name: Jalankan Otak Bot Pinter
-        shell: bash
-        env:
-          GH_TOKEN: ${{ inputs.token || github.token }}
-        run: |
-          echo "=== 1. SEARCHING LATEST TAG & ANCHOR COMMIT ==="
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.1.0-proto.0")
-          echo "Latest tag found: $LATEST_TAG"
-          
-          TAG_COMMIT_SHA=$(git rev-list -n 1 "$LATEST_TAG" 2>/dev/null || echo "")
-          echo "Commit SHA for that tag: $TAG_COMMIT_SHA"
-  
-          echo "=== 2. FETCHING COMMITS FOR CURRENT RELEASE ==="
-          if [ -z "$TAG_COMMIT_SHA" ]; then
-            RAW_LOG=$(git log --format="* %s")
-          else
-            RAW_LOG=$(git log --format="* %s" ${TAG_COMMIT_SHA}..HEAD)
-          fi
-  
-          CHANGELOG_COMMITS=$(echo "$RAW_LOG" | sed -E '/^\* (Merge pull request|Merge branch|chore|docs|test|ci)(\([^)]+\))?:/d' | sed -E '/^\* Merge pull request #[0-9]+ from .*/d')
-  
-          if [ -z "$CHANGELOG_COMMITS" ] || ! echo "$CHANGELOG_COMMITS" | grep -q '[^[:space:]]'; then
-            echo "No feature or bugfix commits found. Skipping release PR!"
-            exit 0
-          fi
-  
-          if [ -z "$CHANGELOG_COMMITS" ] || ! echo "$CHANGELOG_COMMITS" | grep -q '[^[:space:]]'; then
-            echo "No feature or bugfix commits found. All new commits are minor maintenance (chore/docs/test/ci). Skipping release PR!"
-            exit 0
-          fi
-  
-          if [ -z "$CHANGELOG_COMMITS" ]; then
-            echo "No new commits found after tag $LATEST_TAG. Skipping release PR!"
-            exit 0
-          fi
-  
-          echo "=== 3. PARSING COMMAND FROM PR ==="
-          BASE_VERSION=$(echo "$LATEST_TAG" | sed -E 's/([^#-]+).*/\1/')
-          TAG_COUNTER=$(echo "$LATEST_TAG" | sed -E 's/.*\.([0-9]+)$/\1/' | grep -E '^[0-9]+$' || echo "0")
-          
-          CURRENT_COMMIT=$(git rev-parse HEAD)
-          PR_NUMBER=$(gh pr list --state merged --search "$CURRENT_COMMIT" --json number -q '.[0].number' || echo "")
-          
-          if [ "$IS_COMMENT" == "true" ]; then
-            COMMAND=$(echo "$COMMENT_FOUND" | grep -oE "@domloo-release (major|minor|patch|proto|alpha|beta|rc|stable|set [0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?)")
-          elif [ ! -z "$PR_NUMBER" ]; then
-            PR_BODY=$(gh pr view "$PR_NUMBER" --json body -q '.body')
-            COMMAND=$(echo "$PR_BODY" | grep -oE "@domloo-release (major|minor|patch|proto|alpha|beta|rc|stable|set [0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?)")
-          fi
-          
-          TYPE=${COMMAND:-@domloo-release alpha}
-          TYPE=${TYPE#@domloo-release }
-  
-          MAJOR=$(echo "$BASE_VERSION" | cut -d. -f1)
-          MINOR=$(echo "$BASE_VERSION" | cut -d. -f2)
-          PATCH=$(echo "$BASE_VERSION" | cut -d. -f3)
-  
-          case $TYPE in
-            major) NEXT_VERSION="$((MAJOR + 1)).0.0" ;;
-            minor) NEXT_VERSION="${MAJOR}.$((MINOR + 1)).0" ;;
-            patch) NEXT_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))" ;;
-            proto) 
-              VERSION_BASE=$(echo "$LATEST_TAG" | sed -E 's/-proto\.[0-9]+//')
-              NEXT_VERSION="${VERSION_BASE}-proto.$((TAG_COUNTER + 1))" 
-              ;;
-            alpha) 
-              VERSION_BASE=$(echo "$LATEST_TAG" | sed -E 's/-alpha\.[0-9]+//')
-              NEXT_VERSION="${VERSION_BASE}-alpha.$((TAG_COUNTER + 1))" 
-              ;;
-            beta)  
-              VERSION_BASE=$(echo "$LATEST_TAG" | sed -E 's/-beta\.[0-9]+//')
-              NEXT_VERSION="${VERSION_BASE}-beta.$((TAG_COUNTER + 1))" 
-              ;;
-            rc) 
-              VERSION_BASE=$(echo "$LATEST_TAG" | sed -E 's/-rc\.[0-9]+//')
-              NEXT_VERSION="${VERSION_BASE}-rc.$((TAG_COUNTER + 1))" 
-              ;;
-            stable)
-              NEXT_VERSION=$(echo "$LATEST_TAG" | sed -E 's/-.*//')
-              ;;
-            set*)
-              NEXT_VERSION=$(echo "$TYPE" | awk '{print $2}')
-              [[ "$NEXT_VERSION" != v* ]] && NEXT_VERSION="$NEXT_VERSION"
-              ;;
-          esac
-  
-          echo "NEW_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
-          
-          echo "## Changelog for $NEXT_VERSION" > current_changelog.md
-          echo "" >> current_changelog.md
-          echo "$CHANGELOG_COMMITS" >> current_changelog.md
-  
-      - name: Update File Konfigurasi Projek (SED Engine)
-        if: env.NEW_VERSION != ''
-        shell: bash
-        run: |
-          if [ -f "package.json" ]; then
-            sed -i "s/\"version\": \".*\"/\"version\": \"${{ env.NEW_VERSION }}\"/g" package.json
-          fi
-          if [ -f "Cargo.toml" ]; then
-            sed -i "s/^version = \".*\"/version = \"${{ env.NEW_VERSION }}\"/g" Cargo.toml
-          fi
-  
-      - name: Create Release Branch and Push
-        if: env.NEW_VERSION != ''
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ inputs.token || github.token }}
-          GH_TOKEN: ${{ inputs.token || github.token }}
-        run: |
-          git config --global user.name "domloo-release[bot]"
-          git config --global user.email "293296910+domloo-release[bot]@users.noreply.github.com"
-          
-          if [ -f "docs/CHANGELOG.md" ]; then
-            cat current_changelog.md docs/CHANGELOG.md > temp_changelog.md && mv temp_changelog.md docs/CHANGELOG.md
-          else
-            cp current_changelog.md docs/CHANGELOG.md
-          fi
-  
-          BRANCH_NAME="release/${{ env.NEW_VERSION }}"
-          
-          # Cukup satu baris ini buat gantiin seluruh logic if-else pengecekan branch lama
-          git checkout -B "$BRANCH_NAME"
-  
-          [ -f "package.json" ] && git add package.json
-          [ -f "Cargo.toml" ] && git add Cargo.toml
-          [ -f "docs/CHANGELOG.md" ] && git add docs/CHANGELOG.md
-  
-          git commit -m "chore: prepare release ${{ env.NEW_VERSION }}" || echo "No changes to commit"
-          
-          # Dorong paksa ke remote, auto tembus mau kondisinya kayak gimana pun
-          git push -f "https://x-access-token:${{ inputs.token || github.token }}@github.com/${{ github.repository }}.git" "$BRANCH_NAME"
-  
-          # ... sisa perintah gh pr list, cleanup, dan pr create ke bawah ...
-  
-          PR_EXISTS=$(gh pr list --head "$BRANCH_NAME" --json number -q '.[0].number')
-  
-          OLD_PRS=$(gh pr list --base main --state open --limit 100 --json headRefName,number -q '.[] | select(.headRefName != null and (.headRefName | startswith("release/")) and .headRefName != "'"$BRANCH_NAME"'") | .number')
-          
-          if [ ! -z "$OLD_PRS" ]; then
-            for PR_NUM in $OLD_PRS; do
-              OLD_BRANCH=$(gh pr view "$PR_NUM" --json headRefName -q '.headRefName')
-              echo "Closing old PR #$PR_NUM and deleting branch $OLD_BRANCH..."
-              
-              gh pr close "$PR_NUM" --delete-branch
-              git push "https://x-access-token:${{ inputs.token || github.token }}@github.com/${{ github.repository }}.git" --delete "$OLD_BRANCH" 2>/dev/null || true
-            done
-          else
-            echo "No old release PRs to cleanup."
-          fi
-  
-          PR_EXISTS=$(gh pr list --head "$BRANCH_NAME" --json number -q '.[0].number')
-  
-          if [ -z "$PR_EXISTS" ]; then
-            echo "Opening a brand new Release PR for $BRANCH_NAME..."
-            gh pr create \
-              --title "chore: release ${{ env.NEW_VERSION }}" \
-              --body-file current_changelog.md \
-              --base main \
-              --head "$BRANCH_NAME"
-          else
-            echo "Updating existing PR #$PR_EXISTS body..."
-            gh pr edit "$PR_EXISTS" --body-file current_changelog.md
-          fi
+    - name: Jalankan Otak Bot Pinter
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token || github.token }}
+      run: |
+        echo "=== 1. SEARCHING LATEST TAG & ANCHOR COMMIT ==="
+        LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.1.0-proto.0")
+        echo "Latest tag found: $LATEST_TAG"
+        
+        TAG_COMMIT_SHA=$(git rev-list -n 1 "$LATEST_TAG" 2>/dev/null || echo "")
+        echo "Commit SHA for that tag: $TAG_COMMIT_SHA"
+
+        echo "=== 2. FETCHING COMMITS FOR CURRENT RELEASE ==="
+        if [ -z "$TAG_COMMIT_SHA" ]; then
+          RAW_LOG=$(git log --format="* %s")
+        else
+          RAW_LOG=$(git log --format="* %s" ${TAG_COMMIT_SHA}..HEAD)
+        fi
+
+        CHANGELOG_COMMITS=$(echo "$RAW_LOG" | sed -E '/^\* (Merge pull request|Merge branch|chore|docs|test|ci)(\([^)]+\))?:/d' | sed -E '/^\* Merge pull request #[0-9]+ from .*/d')
+
+        if [ -z "$CHANGELOG_COMMITS" ] || ! echo "$CHANGELOG_COMMITS" | grep -q '[^[:space:]]'; then
+          echo "No feature or bugfix commits found. Skipping release PR!"
+          exit 0
+        fi
+
+        if [ -z "$CHANGELOG_COMMITS" ] || ! echo "$CHANGELOG_COMMITS" | grep -q '[^[:space:]]'; then
+          echo "No feature or bugfix commits found. All new commits are minor maintenance (chore/docs/test/ci). Skipping release PR!"
+          exit 0
+        fi
+
+        if [ -z "$CHANGELOG_COMMITS" ]; then
+          echo "No new commits found after tag $LATEST_TAG. Skipping release PR!"
+          exit 0
+        fi
+
+        echo "=== 3. PARSING COMMAND FROM PR ==="
+        BASE_VERSION=$(echo "$LATEST_TAG" | sed -E 's/([^#-]+).*/\1/')
+        TAG_COUNTER=$(echo "$LATEST_TAG" | sed -E 's/.*\.([0-9]+)$/\1/' | grep -E '^[0-9]+$' || echo "0")
+        
+        CURRENT_COMMIT=$(git rev-parse HEAD)
+        PR_NUMBER=$(gh pr list --state merged --search "$CURRENT_COMMIT" --json number -q '.[0].number' || echo "")
+        
+        if [ "$IS_COMMENT" == "true" ]; then
+          COMMAND=$(echo "$COMMENT_FOUND" | grep -oE "@domloo-release (major|minor|patch|proto|alpha|beta|rc|stable|set [0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?)")
+        elif [ ! -z "$PR_NUMBER" ]; then
+          PR_BODY=$(gh pr view "$PR_NUMBER" --json body -q '.body')
+          COMMAND=$(echo "$PR_BODY" | grep -oE "@domloo-release (major|minor|patch|proto|alpha|beta|rc|stable|set [0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?)")
+        fi
+        
+        TYPE=${COMMAND:-@domloo-release alpha}
+        TYPE=${TYPE#@domloo-release }
+
+        MAJOR=$(echo "$BASE_VERSION" | cut -d. -f1)
+        MINOR=$(echo "$BASE_VERSION" | cut -d. -f2)
+        PATCH=$(echo "$BASE_VERSION" | cut -d. -f3)
+
+        case $TYPE in
+          major) NEXT_VERSION="$((MAJOR + 1)).0.0" ;;
+          minor) NEXT_VERSION="${MAJOR}.$((MINOR + 1)).0" ;;
+          patch) NEXT_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))" ;;
+          proto) 
+            VERSION_BASE=$(echo "$LATEST_TAG" | sed -E 's/-proto\.[0-9]+//')
+            NEXT_VERSION="${VERSION_BASE}-proto.$((TAG_COUNTER + 1))" 
+            ;;
+          alpha) 
+            VERSION_BASE=$(echo "$LATEST_TAG" | sed -E 's/-alpha\.[0-9]+//')
+            NEXT_VERSION="${VERSION_BASE}-alpha.$((TAG_COUNTER + 1))" 
+            ;;
+          beta)  
+            VERSION_BASE=$(echo "$LATEST_TAG" | sed -E 's/-beta\.[0-9]+//')
+            NEXT_VERSION="${VERSION_BASE}-beta.$((TAG_COUNTER + 1))" 
+            ;;
+          rc) 
+            VERSION_BASE=$(echo "$LATEST_TAG" | sed -E 's/-rc\.[0-9]+//')
+            NEXT_VERSION="${VERSION_BASE}-rc.$((TAG_COUNTER + 1))" 
+            ;;
+          stable)
+            NEXT_VERSION=$(echo "$LATEST_TAG" | sed -E 's/-.*//')
+            ;;
+          set*)
+            NEXT_VERSION=$(echo "$TYPE" | awk '{print $2}')
+            [[ "$NEXT_VERSION" != v* ]] && NEXT_VERSION="$NEXT_VERSION"
+            ;;
+        esac
+
+        echo "NEW_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
+        
+        echo "## Changelog for $NEXT_VERSION" > current_changelog.md
+        echo "" >> current_changelog.md
+        echo "$CHANGELOG_COMMITS" >> current_changelog.md
+
+    - name: Update File Konfigurasi Projek (SED Engine)
+      if: env.NEW_VERSION != ''
+      shell: bash
+      run: |
+        if [ -f "package.json" ]; then
+          sed -i "s/\"version\": \".*\"/\"version\": \"${{ env.NEW_VERSION }}\"/g" package.json
+        fi
+        if [ -f "Cargo.toml" ]; then
+          sed -i "s/^version = \".*\"/version = \"${{ env.NEW_VERSION }}\"/g" Cargo.toml
+        fi
+
+    - name: Create Release Branch and Push
+      if: env.NEW_VERSION != ''
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token || github.token }}
+        GH_TOKEN: ${{ inputs.token || github.token }}
+      run: |
+        git config --global user.name "domloo-release[bot]"
+        git config --global user.email "293296910+domloo-release[bot]@users.noreply.github.com"
+        
+        if [ -f "docs/CHANGELOG.md" ]; then
+          cat current_changelog.md docs/CHANGELOG.md > temp_changelog.md && mv temp_changelog.md docs/CHANGELOG.md
+        else
+          cp current_changelog.md docs/CHANGELOG.md
+        fi
+
+        BRANCH_NAME="release/${{ env.NEW_VERSION }}"
+        
+        # Cukup satu baris ini buat gantiin seluruh logic if-else pengecekan branch lama
+        git checkout -B "$BRANCH_NAME"
+
+        [ -f "package.json" ] && git add package.json
+        [ -f "Cargo.toml" ] && git add Cargo.toml
+        [ -f "docs/CHANGELOG.md" ] && git add docs/CHANGELOG.md
+
+        git commit -m "chore: prepare release ${{ env.NEW_VERSION }}" || echo "No changes to commit"
+        
+        # Dorong paksa ke remote, auto tembus mau kondisinya kayak gimana pun
+        git push -f "https://x-access-token:${{ inputs.token || github.token }}@github.com/${{ github.repository }}.git" "$BRANCH_NAME"
+
+        # ... sisa perintah gh pr list, cleanup, dan pr create ke bawah ...
+
+        PR_EXISTS=$(gh pr list --head "$BRANCH_NAME" --json number -q '.[0].number')
+
+        OLD_PRS=$(gh pr list --base main --state open --limit 100 --json headRefName,number -q '.[] | select(.headRefName != null and (.headRefName | startswith("release/")) and .headRefName != "'"$BRANCH_NAME"'") | .number')
+        
+        if [ ! -z "$OLD_PRS" ]; then
+          for PR_NUM in $OLD_PRS; do
+            OLD_BRANCH=$(gh pr view "$PR_NUM" --json headRefName -q '.headRefName')
+            echo "Closing old PR #$PR_NUM and deleting branch $OLD_BRANCH..."
+            
+            gh pr close "$PR_NUM" --delete-branch
+            git push "https://x-access-token:${{ inputs.token || github.token }}@github.com/${{ github.repository }}.git" --delete "$OLD_BRANCH" 2>/dev/null || true
+          done
+        else
+          echo "No old release PRs to cleanup."
+        fi
+
+        PR_EXISTS=$(gh pr list --head "$BRANCH_NAME" --json number -q '.[0].number')
+
+        if [ -z "$PR_EXISTS" ]; then
+          echo "Opening a brand new Release PR for $BRANCH_NAME..."
+          gh pr create \
+            --title "chore: release ${{ env.NEW_VERSION }}" \
+            --body-file current_changelog.md \
+            --base main \
+            --head "$BRANCH_NAME"
+        else
+          echo "Updating existing PR #$PR_EXISTS body..."
+          gh pr edit "$PR_EXISTS" --body-file current_changelog.md
+        fi
