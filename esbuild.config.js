@@ -10,7 +10,15 @@ async function build() {
     outdir: 'dist',
     minify: true,
     sourcemap: false,
-    packages: 'external',
+    external: [
+      'os', 
+      'fs', 
+      'path', 
+      'child_process', 
+      'crypto', 
+      'http', 
+      'https'
+    ],
     banner: {
       js: `
         import { fileURLToPath } from 'url';
