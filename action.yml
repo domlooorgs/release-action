@@ -10,11 +10,11 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Run Security Guard Scanner
+    - name: Security Checker
       shell: bash
       run: |
-        chmod +x "${{ github.action_path }}/action-scripts/security-guard.sh"
-        "${{ github.action_path }}/action-scripts/security-guard.sh"
+        chmod +x "${{ github.action_path }}/action-scripts/security-checker.sh"
+        "${{ github.action_path }}/action-scripts/security-checker.sh"
 
     - name: Deteksi Trigger
       shell: bash
