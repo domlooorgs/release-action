@@ -21,7 +21,7 @@ function shellExec(command: string): string {
 }
 
 async function run() {
-  logStart();
+  logStart(16);
   const nextVersion = process.env.NEW_VERSION;
   const githubToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
   const repository = process.env.GITHUB_REPOSITORY;
@@ -80,7 +80,7 @@ async function run() {
     console.log(`Updating existing PR #${prExists} body...`);
     shellExec(`gh pr edit "${prExists}" --body-file current_changelog.md`);
   }
-  logEnd();
+  logEnd(16);
 }
 
 run();
