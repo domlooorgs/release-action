@@ -1,4 +1,8 @@
 #!/bin/bash
+# ============================================
+# Copyright 2026 SoTeen Studio
+# Domloo Release Action
+# ============================================
 set -euo pipefail
 
 echo "=== [Domloo Engine] Perubahan terdeteksi atau cache kosong. Nge-build ulang... ==="

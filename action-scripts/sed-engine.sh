@@ -1,4 +1,8 @@
 #!/bin/bash
+# ============================================
+# Copyright 2026 SoTeen Studio
+# Domloo Release Action
+# ============================================
 set -euo pipefail
 
 if [ -n "$NEW_VERSION" ]; then

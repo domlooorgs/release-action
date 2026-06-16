@@ -1,4 +1,8 @@
 #!/bin/bash
+# ============================================
+# Copyright 2026 SoTeen Studio
+# Domloo Release Action
+# ============================================
 set -euo pipefail
 
 if [ "$GITHUB_EVENT_NAME" == "issue_comment" ]; then

@@ -1,4 +1,8 @@
 #!/bin/bash
+# ============================================
+# Copyright 2026 SoTeen Studio
+# Domloo Release Action
+# ============================================
 set -euo pipefail
 
 SRC_HASH=$(find "$GITHUB_ACTION_PATH/src" -type f -name "*.ts" -exec md5sum {} + | sort | md5sum | awk '{print $1}')

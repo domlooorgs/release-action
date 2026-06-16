@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================
 # Copyright 2026 SoTeen Studio
-# Domloo Release Action - Security & Sanity Guard Engine (Fortress Mode v2)
+# Domloo Release Action
 # ============================================
 set -euo pipefail
 

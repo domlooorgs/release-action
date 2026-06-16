@@ -1,5 +1,3 @@
-#!/bin/bash
-
 logStep() {
   local type="INFO"
   local msg="$1"
@@ -12,7 +10,6 @@ logStep() {
   local clean_msg=$(echo "$msg" | sed 's/\x1b\[[0-9;]*m//g')
   local total_len=$(( ${#clean_msg} + 16 ))
 
-  # Warna ANSI Bash
   local CYAN='\033[0;36m'
   local GREEN='\033[0;32m'
   local YELLOW='\033[1;33m'
