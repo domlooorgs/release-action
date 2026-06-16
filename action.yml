@@ -19,6 +19,26 @@ runs:
           echo "IS_COMMENT=true" >> $GITHUB_ENV
         fi
 
+    - name: Cache Domloo Dependencies & Dist
+      id: domloo-cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ github.action_path }}/node_modules
+          ${{ github.action_path }}/dist
+        # Kunci di-hash berdasarkan package-lock DAN semua file .ts di folder src
+        key: domloo-build-${{ hashFiles(format('{0}/package-lock.json', github.action_path), format('{0}/src/**/*.ts', github.action_path)) }}
+
+    # === COMPILE HANYA JIKA ADA PERUBAHAN DI KODE TS ATAU PACKAGES ===
+    - name: Install & Compile On The Fly
+      if: steps.domloo-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        echo "=== [Domloo Engine] Perubahan terdeteksi atau cache kosong. Nge-build ulang... ==="
+        cd ${{ github.action_path }}
+        npm ci
+        npm run build
+
     - name: Jalankan Otak Bot Pinter
       shell: bash
       env:
