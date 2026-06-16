@@ -8,16 +8,15 @@ inputs:
     default: ${{ github.token }}
 
 runs:
-  using: "composite" # Ini pembedanya, ngasih tahu GitHub kalau ini composite
+  using: "composite"
   steps:
     - name: Deteksi Trigger
-      shell: bash # DI COMPOSITE WAJIB TULIS SHELL DI TIAP STEP RUN
+      shell: bash
+      env:
+        RAW_COMMENT: ${{ github.event.comment.body }}
       run: |
-        if [ "${{ github.event_name }}" == "issue_comment" ]; then
-          COMMENT_BODY="${{ github.event.comment.body }}"
-          echo "COMMENT_FOUND=$COMMENT_BODY" >> $GITHUB_ENV
-          echo "IS_COMMENT=true" >> $GITHUB_ENV
-        fi
+        chmod +x ${{ github.action_path }}/action-scripts/detect-trigger.sh
+        bash ${{ github.action_path }}/action-scripts/detect-trigger.sh
 
     - name: Calculate Folder Hash
       shell: bash
@@ -32,7 +31,6 @@ runs:
         path: |
           ${{ github.action_path }}/node_modules
           ${{ github.action_path }}/dist
-        # Sekarang kuncinya beneran akurat ngikutin isi file TS lu!
         key: domloo-build-${{ env.DOMLOO_SRC_HASH }}
 
     - name: Install & Compile On-the-Fly

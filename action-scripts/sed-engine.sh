@@ -1,6 +1,5 @@
 #!/bin/bash
-
-set -e
+set -euo pipefail
 
 if [ -n "$NEW_VERSION" ]; then
   if [ -f "package.json" ]; then
