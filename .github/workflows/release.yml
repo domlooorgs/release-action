@@ -1,0 +1,32 @@
+name: Self Release Domloo
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+  issue_comment:
+    types: [created]
+
+jobs:
+  release:
+    if: |
+      (github.event_name == 'push') ||
+      (github.event.pull_request.merged == true) ||
+      (github.event.issue && github.event.comment && startsWith(github.event.comment.body, '@domloo-release'))
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Domloo Action on Itself
+        uses: ./
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
