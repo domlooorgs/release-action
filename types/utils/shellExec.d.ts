@@ -7,4 +7,4 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  */
-export {};
+export declare function shellExec(command: string): string;

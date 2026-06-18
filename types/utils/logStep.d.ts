@@ -7,4 +7,6 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  */
-export {};
+export declare function logStart(boxWidth?: number): void;
+export declare function logLine(msg: string, type?: 'INFO' | 'SUCCESS' | 'ERROR' | 'WARN'): void;
+export declare function logEnd(boxWidth?: number): void;
