@@ -226,6 +226,25 @@ export class CommitClassifier {
     }
   }
   
+  /**
+   * Menghitung nilai Cosine Similarity antara dua vektor teks.
+   * Rumus: (A · B) / (||A|| * ||B||)
+   */
+  private calculateCosineSimilarity(vecA: number[], vecB: number[]): number {
+    let dotProduct = 0;
+    let normA = 0;
+    let normB = 0;
+
+    for (let i = 0; i < vecA.length; i++) {
+      dotProduct += vecA[i] * vecB[i];
+      normA += vecA[i] * vecA[i];
+      normB += vecB[i] * vecB[i];
+    }
+
+    if (normA === 0 || normB === 0) return 0; // Menghindari pembagian dengan nol
+    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+  }
+
   public generateChangelog(commits: string[]): string {
     const groups: Record<Category, string[]> = {
       FEATURES: [],
@@ -233,9 +252,34 @@ export class CommitClassifier {
       MAINTENANCE: [],
     };
 
+    // Array penampung untuk menyimpan vektor commit yang sudah lolos seleksi unik
+    const processedVectors: number[][] = [];
+
+    // Batas toleransi kemiripan matematika (0.85 = 85% kemiripan susunan kata)
+    const similarityThreshold = 0.85;
+
     commits.forEach((commit) => {
-      const category = this.classify(commit);
-      groups[category].push(commit);
+      // 1. Ubah teks commit berjalan menjadi representasi vektor numerik
+      const currentVector = this.textToVector(commit);
+
+      // Cek apakah vektor saat ini memiliki kemiripan tinggi dengan vektor yang sudah diproses
+      let isDuplicateByAI = false;
+      for (const existingVector of processedVectors) {
+        const similarity = this.calculateCosineSimilarity(currentVector, existingVector);
+        
+        if (similarity > similarityThreshold) {
+          isDuplicateByAI = true;
+          break; // Ketemu kembaran secara kontekstual, stop pengecekan
+        }
+      }
+
+      // 2. Jika AI mendeteksi ini adalah variasi kalimat baru, loloskan ke changelog
+      if (!isDuplicateByAI) {
+        processedVectors.push(currentVector);
+        
+        const category = this.classify(commit);
+        groups[category].push(commit);
+      }
     });
 
     let markdown = '';
@@ -245,4 +289,5 @@ export class CommitClassifier {
 
     return markdown;
   }
+
 }
