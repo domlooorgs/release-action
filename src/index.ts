@@ -170,203 +170,101 @@ async function run() {
     console.log('=== 2.5. TRAINING EMBEDDED NEURAL NETWORK ===');
 
     const trainingData = [
-      // === FEATURES ===
-      {
-        text: 'add new feature for user authentication and login security',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'implement lightvm core bytecode executor and interpreter architecture',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'support new api endpoint for custom rom system telemetry',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'create native bindings to support multi platform compilation',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'add dark mode toggle inside layout ui components',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'implement automated test runner framework for CI pipeline infrastructure',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'introduce new analytics dashboard module to track panel metrics',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'add multi language support for localization and i18n translation',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'implement dynamic plugin engine loading architecture for modular extension',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'add structural support for nested json scheme validation inside core parser',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'create custom event emitter system to handle asynchronous internal calls',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'integrate responsive dialog window layout for interactive player interface',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'implement multi tier caching engine to reduce database read overhead',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'add automatic file watcher system to handle hot reload changes',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'introduce new cryptographic hashing method for user password protection',
-        category: 'FEATURES' as const,
-      },
-      {
-        text: 'implement standard bytecode instruction set verification inside system core',
-        category: 'FEATURES' as const,
-      },
-      
-      // === BUG_FIXES ===
-      {
-        text: 'fix null pointer exception error inside source syntax parser',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'resolve memory leak resources and unexpected runtime crash on exit',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'hotfix to handle invalid token auth and block secure connection',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'fix unexpected type error inside esbuild configuration bundle compiler',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'resolve infinite loop condition during virtual machine bytecode execution',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'fix race condition inside multi threading worker channel logic',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'patch security vulnerability inside core dependency library parser',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'fix broken ui rendering layout on mobile view android screen',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'fix unexpected runtime panic when passing empty array into internal function',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'resolve stack overflow error during recursive token parsing execution',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'fix variable scope lookup shadow bug inside bytecode compiler engine',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'patch integrity check failure when validation key mismatch occurs',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'fix file descriptor leaks caused by unclosed output stream pool',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'resolve dead lock block state inside state synchronization manager',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'fix environmental variable mapping error for production release tag output',
-        category: 'BUG_FIXES' as const,
-      },
-      {
-        text: 'hotfix for unexpected crash triggered by malformed binary bytecode stream',
-        category: 'BUG_FIXES' as const,
-      },
-      
-      // === MAINTENANCE ===
-      {
-        text: 'bump version for core dependencies and update github action configuration',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'clean up console log format and fix code styling via prettier lint rules',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'refactor routing logic architecture to clean up structural code change',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'update readme documentation and markdown changelog installation guide tutorial',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'optimize build process compile times and setup minification bundler scripts',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'compile source code and optimize automated assembly generator tools',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'improve performance profiling metrics during benchmark execution tests',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'ignore old backup temporary artifacts inside default gitignore template',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'refactor internal module structure to improve maintainability and clean import lines',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'update third party library license notices and headers format',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'optimize memory allocation strategy by reusing pre allocated buffer pool',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'clean up obsolete test files and deprecated helper class codebases',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'reorganize asset directories structure for public distribution optimization',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'migrate compile target to native bindings setup runner options',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'tweak confidence threshold rules inside automated script verification parameters',
-        category: 'MAINTENANCE' as const,
-      },
-      {
-        text: 'improve code coverage metrics by expanding units test assertion scope',
-        category: 'MAINTENANCE' as const,
-      },
+      // ==================== FEATURES ====================
+      { text: 'feat: Add Doovy.ts machine learning engine', category: 'FEATURES' as const },
+      { text: 'feat: Add shellExec.ts for native command execution', category: 'FEATURES' as const },
+      { text: 'feat: Add security checker to action.yml workflow', category: 'FEATURES' as const },
+      { text: 'feat: Add copyright header verification system', category: 'FEATURES' as const },
+      { text: 'feat: Add detect trigger mechanism for repository events', category: 'FEATURES' as const },
+      { text: 'feat: Add calculate hash logic for file integrity', category: 'FEATURES' as const },
+      { text: 'feat: Add push-engine.ts core module development', category: 'FEATURES' as const },
+      { text: 'feat: Add index.ts export routing infrastructure', category: 'FEATURES' as const },
+      { text: 'feat: Added word order understanding feature with ngrams', category: 'FEATURES' as const },
+      { text: 'feat: Add on-the-fly compile runtime support', category: 'FEATURES' as const },
+      { text: 'implement lightvm core bytecode executor architecture', category: 'FEATURES' as const },
+      { text: 'feat: support multi-tenant database connection routing', category: 'FEATURES' as const },
+      { text: 'feat: implement oauth2 login flow with google provider', category: 'FEATURES' as const },
+      { text: 'feat: add support for webauthn biometric authentication', category: 'FEATURES' as const },
+      { text: 'feat: create dynamic dashboard widgets layout renderer', category: 'FEATURES' as const },
+      { text: 'feat: implement automatic database migration runner on startup', category: 'FEATURES' as const },
+      { text: 'feat: add native compression middleware support for response streams', category: 'FEATURES' as const },
+      { text: 'feat: introduce realtime notification engine using websocket server', category: 'FEATURES' as const },
+      { text: 'feat: implement rate limiting controller via redis memory cache', category: 'FEATURES' as const },
+      { text: 'feat(auth): support session revocation token list validation', category: 'FEATURES' as const },
+      { text: 'feat(api): expose query parameter metrics for performance analysis', category: 'FEATURES' as const },
+      { text: 'feat: add dark mode theme palette provider context', category: 'FEATURES' as const },
+      { text: 'feat: support markdown parsing engine inside rich text editor component', category: 'FEATURES' as const },
+      { text: 'feat: implement file upload processing stream chunks directly to s3 storage', category: 'FEATURES' as const },
+      { text: 'feat: introduce high performance bulk insertion framework for telemetry logs', category: 'FEATURES' as const },
+      { text: 'feat: support custom syntax configuration rules file loading', category: 'FEATURES' as const },
+      { text: 'feat: add automated email notification layout builder tool', category: 'FEATURES' as const },
+      { text: 'feat: implement hardware acceleration flags validation utility', category: 'FEATURES' as const },
+      { text: 'feat: add background worker queue state monitor module', category: 'FEATURES' as const },
+      { text: 'feat: implement incremental build mode options for fast development execution', category: 'FEATURES' as const },
+
+      // ==================== BUG_FIXES ====================
+      { text: 'fix: Fix not exist tag error inside git engine', category: 'BUG_FIXES' as const },
+      { text: 'fix: Fix shellExec error msg not showing on output terminal', category: 'BUG_FIXES' as const },
+      { text: 'fix: Fix tag commit SHA error calculation mismatch', category: 'BUG_FIXES' as const },
+      { text: 'fix: Fix sync issues between remote and local pipeline', category: 'BUG_FIXES' as const },
+      { text: 'fix: Fix security checker boundary conditions vulnerabilities', category: 'BUG_FIXES' as const },
+      { text: 'fix: Fix cache logic storage path directory mismatch', category: 'BUG_FIXES' as const },
+      { text: 'fix: Fix install-compile.sh execution permission crash', category: 'BUG_FIXES' as const },
+      { text: 'fix: Fix sed-engine.sh syntax substitution bug', category: 'BUG_FIXES' as const },
+      { text: 'fix: comment respons string formatting parsing leak', category: 'BUG_FIXES' as const },
+      { text: 'fix: Fixed version writing inside automated text writer', category: 'BUG_FIXES' as const },
+      { text: 'fix: Fix NEW_VERSION bug variable tracking state override', category: 'BUG_FIXES' as const },
+      { text: 'fix: resolve unhandled promise rejection during connection timeout failure', category: 'BUG_FIXES' as const },
+      { text: 'fix: patch memory leak in event emitter listeners lookup maps', category: 'BUG_FIXES' as const },
+      { text: 'fix: prevent null pointer reference crash inside semantic syntax validator', category: 'BUG_FIXES' as const },
+      { text: 'fix: resolve deadlock blocking state in database transaction pool management', category: 'BUG_FIXES' as const },
+      { text: 'fix: fix broken responsive layout styling rules on mobile chrome browser view', category: 'BUG_FIXES' as const },
+      { text: 'fix: hotfix to filter out invalid authorization credentials tokens block', category: 'BUG_FIXES' as const },
+      { text: 'fix: resolve infinite loop execution during nested array serialization processes', category: 'BUG_FIXES' as const },
+      { text: 'fix: fix type mapping collision failure inside compiler configuration options', category: 'BUG_FIXES' as const },
+      { text: 'fix: prevent unexpected stack overflow boundary errors during deep recursion paths', category: 'BUG_FIXES' as const },
+      { text: 'fix(core): patch vulnerability validation schema checks mechanisms', category: 'BUG_FIXES' as const },
+      { text: 'fix(ui): correct modal dialog transition backdrop z-index placement stack', category: 'BUG_FIXES' as const },
+      { text: 'fix: escape dangerous characters to mitigate cross site scripting injection vectors', category: 'BUG_FIXES' as const },
+      { text: 'fix: catch file descriptor leak anomalies across active socket network streams', category: 'BUG_FIXES' as const },
+      { text: 'fix: restore corrupted session parameters during unexpected disconnect cycles', category: 'BUG_FIXES' as const },
+      { text: 'fix: fix environmental variable fallback definitions overriding production states', category: 'BUG_FIXES' as const },
+      { text: 'fix: resolve thread synchronization racing anomalies inside logging loop systems', category: 'BUG_FIXES' as const },
+      { text: 'fix: correct bad offset calculation formula reading binary blob allocations', category: 'BUG_FIXES' as const },
+      { text: 'fix: prevent cross origin cors blocker errors on dynamic file distribution points', category: 'BUG_FIXES' as const },
+      { text: 'fix: patch broken date format representation across alternative server locales', category: 'BUG_FIXES' as const },
+
+      // ==================== MAINTENANCE ====================
+      { text: 'docs: Add CHANGELOG.md release documentation', category: 'MAINTENANCE' as const },
+      { text: 'chore: Add release.yml github action automatic workflow', category: 'MAINTENANCE' as const },
+      { text: 'chore: Add scripts directories for asset processing automation', category: 'MAINTENANCE' as const },
+      { text: 'update Doovy AI parameters and model internal properties', category: 'MAINTENANCE' as const },
+      { text: 'refactor: Clean up code complexity inside semantic optimizer', category: 'MAINTENANCE' as const },
+      { text: 'feat: Update Doovy dataset vocabulary limits for tuning', category: 'MAINTENANCE' as const },
+      { text: 'chore: Setup prettier format rules configuration styling', category: 'MAINTENANCE' as const },
+      { text: 'chore: Update types declaration definitions interfaces', category: 'MAINTENANCE' as const },
+      { text: 'refactor: Tidy up the log step code structure sequence', category: 'MAINTENANCE' as const },
+      { text: 'chore: Tidying up the code and clearing unused imports', category: 'MAINTENANCE' as const },
+      { text: 'feat: Update push-engine log msg format styling lines', category: 'MAINTENANCE' as const },
+      { text: 'feat: Update action.yml metadata properties parameters', category: 'MAINTENANCE' as const },
+      { text: 'chore: Update package.json scripts run and target versions', category: 'MAINTENANCE' as const },
+      { text: 'chore: bump dependencies version parameters to comply with upstream patches', category: 'MAINTENANCE' as const },
+      { text: 'docs: update markdown documentation setup guide detailing deployment tutorials', category: 'MAINTENANCE' as const },
+      { text: 'refactor: decouple network routing adapters architecture layer completely', category: 'MAINTENANCE' as const },
+      { text: 'chore: configure strict eslint tracking parameters across root source folders', category: 'MAINTENANCE' as const },
+      { text: 'perf: optimize internal payload serialization performance speeds throughput', category: 'MAINTENANCE' as const },
+      { text: 'test: expand unit test assertions coverage limits validating server routines', category: 'MAINTENANCE' as const },
+      { text: 'chore: clean up obsolete temporary artifact tracks inside gitignore profiles', category: 'MAINTENANCE' as const },
+      { text: 'refactor: simplify deeply nested conditional evaluation statements logic structures', category: 'MAINTENANCE' as const },
+      { text: 'docs: fix grammatical typo mistakes across API reference documentation pages', category: 'MAINTENANCE' as const },
+      { text: 'chore(ci): split test running tasks across parallel cloud workers setups', category: 'MAINTENANCE' as const },
+      { text: 'style: normalize code blocks indentation rules and trailing space behaviors', category: 'MAINTENANCE' as const },
+      { text: 'perf: rewrite inner math computation loop using lookup tables cache arrays', category: 'MAINTENANCE' as const },
+      { text: 'chore: migrate old configuration manifests structures to updated schema models', category: 'MAINTENANCE' as const },
+      { text: 'refactor: rename abstract factory base interfaces eliminating token ambiguity', category: 'MAINTENANCE' as const },
+      { text: 'chore: audit corporate license header stamps compliance across package trees', category: 'MAINTENANCE' as const },
+      { text: 'test: add integration benchmark testing coverage checking worker pooling strain', category: 'MAINTENANCE' as const },
+      { text: 'chore: prune deprecated helper wrappers routines legacy methods files', category: 'MAINTENANCE' as const },
     ];
 
 
