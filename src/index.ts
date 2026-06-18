@@ -22,18 +22,19 @@ async function run() {
 
     console.log('=== 1. SEARCHING LATEST TAG & ANCHOR COMMIT ===');
     let latestTag = '';
-    
+
     try {
-      // Kita coba ambil tag terakhir
+      
       latestTag = shellExec('git describe --tags --abbrev=0');
     } catch {
-      // Kalau gagal (karena gak ada tag sama sekali di repo), kita pake fallback aman ini
-      console.log('ℹ️ No tags found in repository history. Using initial fallback tag.');
+      
+      console.log(
+        'ℹ️ No tags found in repository history. Using initial fallback tag.',
+      );
       latestTag = 'v0.1.0-proto.0';
     }
     console.log(`Latest tag found: ${latestTag}`);
-
-    // Pastikan pencarian commit SHA juga aman dari crash kalau tag-nya pake fallback
+    
     let tagCommitSha = '';
     if (latestTag !== 'v0.1.0-proto.0') {
       try {
@@ -116,13 +117,13 @@ async function run() {
       const match = prBody.match(commandRegex);
       if (match) command = match[0];
     }
-    
+
     let fullType = command || '@domloo-release alpha';
-    
+
     const matchGroup = fullType.match(
       /@domloo-release (major|minor|patch|proto|alpha|beta|rc|stable|set \S+)/,
     );
-    
+
     let type = matchGroup ? matchGroup[1].trim() : 'alpha';
 
     console.log(`[Domloo Debug] Parsed Command Type: "${type}"`);
@@ -167,51 +168,119 @@ async function run() {
     core.exportVariable('NEW_VERSION', nextVersion);
 
     console.log('=== 2.5. TRAINING EMBEDDED NEURAL NETWORK ===');
-    
+
     const trainingData = [
-      // === FEATURES ===
-      { text: 'add feature for user auth authentication login', category: 'FEATURES' as const },
-      { text: 'implement lightvm bytecode executor interpreter core', category: 'FEATURES' as const },
-      { text: 'support new endpoint for custom rom system telemetry', category: 'FEATURES' as const },
-      { text: 'create native bindings for platform compilation support', category: 'FEATURES' as const },
-      { text: 'add dark mode toggle UI components elements', category: 'FEATURES' as const },
-      { text: 'implement automated test runner framework infrastructure', category: 'FEATURES' as const },
-      { text: 'introduce new dashboard module analytics panel metrics', category: 'FEATURES' as const },
-      { text: 'add support for multiple language localization translation i18n', category: 'FEATURES' as const },
-
-      // === BUG_FIXES ===
-      { text: 'fix null pointer exception error inside parser', category: 'BUG_FIXES' as const },
-      { text: 'resolve memory leak bug crash on exit runtime', category: 'BUG_FIXES' as const },
-      { text: 'hotfix handling invalid token auth block connection', category: 'BUG_FIXES' as const },
-      { text: 'fix type error inside esbuild configuration config compiler', category: 'BUG_FIXES' as const },
-      { text: 'resolve infinite loop condition during bytecode execution', category: 'BUG_FIXES' as const },
-      { text: 'fix race condition inside multi threading worker logic', category: 'BUG_FIXES' as const },
-      { text: 'patch security vulnerability inside dependency library parser', category: 'BUG_FIXES' as const },
-      { text: 'fix broken UI rendering layout on mobile view android', category: 'BUG_FIXES' as const },
-
-      // === MAINTENANCE ===
-      { text: 'bump version dependencies update action configuration', category: 'MAINTENANCE' as const },
-      { text: 'clean up console log format code styling lint format prettier', category: 'MAINTENANCE' as const },
-      { text: 'refactor routing logic architecture clean code structural change', category: 'MAINTENANCE' as const },
-      { text: 'update readme documentation docs installation guide tutorial', category: 'MAINTENANCE' as const },
-      { text: 'optimize build process compile times minification bundler scripts', category: 'MAINTENANCE' as const },
-      { text: 'compiling source code optimize assembly generator tools production', category: 'MAINTENANCE' as const },
-      { text: 'improve performance bench metrics profiling benchmark execution', category: 'MAINTENANCE' as const },
-      { text: 'ignore old backup temporary artifacts inside gitignore template', category: 'MAINTENANCE' as const }
+      
+      {
+        text: 'add feature for user auth authentication login',
+        category: 'FEATURES' as const,
+      },
+      {
+        text: 'implement lightvm bytecode executor interpreter core',
+        category: 'FEATURES' as const,
+      },
+      {
+        text: 'support new endpoint for custom rom system telemetry',
+        category: 'FEATURES' as const,
+      },
+      {
+        text: 'create native bindings for platform compilation support',
+        category: 'FEATURES' as const,
+      },
+      {
+        text: 'add dark mode toggle UI components elements',
+        category: 'FEATURES' as const,
+      },
+      {
+        text: 'implement automated test runner framework infrastructure',
+        category: 'FEATURES' as const,
+      },
+      {
+        text: 'introduce new dashboard module analytics panel metrics',
+        category: 'FEATURES' as const,
+      },
+      {
+        text: 'add support for multiple language localization translation i18n',
+        category: 'FEATURES' as const,
+      },
+      
+      {
+        text: 'fix null pointer exception error inside parser',
+        category: 'BUG_FIXES' as const,
+      },
+      {
+        text: 'resolve memory leak bug crash on exit runtime',
+        category: 'BUG_FIXES' as const,
+      },
+      {
+        text: 'hotfix handling invalid token auth block connection',
+        category: 'BUG_FIXES' as const,
+      },
+      {
+        text: 'fix type error inside esbuild configuration config compiler',
+        category: 'BUG_FIXES' as const,
+      },
+      {
+        text: 'resolve infinite loop condition during bytecode execution',
+        category: 'BUG_FIXES' as const,
+      },
+      {
+        text: 'fix race condition inside multi threading worker logic',
+        category: 'BUG_FIXES' as const,
+      },
+      {
+        text: 'patch security vulnerability inside dependency library parser',
+        category: 'BUG_FIXES' as const,
+      },
+      {
+        text: 'fix broken UI rendering layout on mobile view android',
+        category: 'BUG_FIXES' as const,
+      },
+      
+      {
+        text: 'bump version dependencies update action configuration',
+        category: 'MAINTENANCE' as const,
+      },
+      {
+        text: 'clean up console log format code styling lint format prettier',
+        category: 'MAINTENANCE' as const,
+      },
+      {
+        text: 'refactor routing logic architecture clean code structural change',
+        category: 'MAINTENANCE' as const,
+      },
+      {
+        text: 'update readme documentation docs installation guide tutorial',
+        category: 'MAINTENANCE' as const,
+      },
+      {
+        text: 'optimize build process compile times minification bundler scripts',
+        category: 'MAINTENANCE' as const,
+      },
+      {
+        text: 'compiling source code optimize assembly generator tools production',
+        category: 'MAINTENANCE' as const,
+      },
+      {
+        text: 'improve performance bench metrics profiling benchmark execution',
+        category: 'MAINTENANCE' as const,
+      },
+      {
+        text: 'ignore old backup temporary artifacts inside gitignore template',
+        category: 'MAINTENANCE' as const,
+      },
     ];
 
     const classifier = new CommitClassifier();
     
-    // Kita naikkan epoch-nya ke 500 biar dia bisa mengunyah data baru ini dengan matang
     classifier.train(trainingData, 500);
 
     console.log('=== 2.6. CLASSIFYING COMMITS VIA NN ===');
-    
+
     const properChangelogBody = classifier.generateChangelog(rawLogLines);
 
     const changelogContent = `## Changelog for ${nextVersion}\n\n${properChangelogBody}`;
     fs.writeFileSync('current_changelog.md', changelogContent, 'utf8');
-
   } catch (error: any) {
     core.setFailed(`Otak Bot Error: ${error.message}`);
   }
