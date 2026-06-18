@@ -248,6 +248,38 @@ export class CommitClassifier {
     return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
   }
 
+  // 1. Tokenizer yang menghasilkan Unigram (kata tunggal) dan Bigram (2 kata berurutan)
+  private tokenizeToNgrams(text: string): string[] {
+    const words = this.tokenize(text);
+    const ngrams = [...words];
+    
+    for (let i = 0; i < words.length - 1; i++) {
+      ngrams.push(`${words[i]}_${words[i + 1]}`);
+    }
+    return ngrams;
+  }
+
+  // 2. Build Vocabulary menggunakan N-gram dari dataset training yang sama
+  private buildVocabulary(dataset: string[]): void {
+    const vocabSet = new Set<string>();
+    dataset.forEach((text) => {
+      this.tokenizeToNgrams(text).forEach((token) => vocabSet.add(token));
+    });
+    this.vocabulary = Array.from(vocabSet);
+  }
+
+  // 3. Ubah teks ke representasi vektor berdasarkan N-gram Vocabulary
+  private textToVector(text: string): number[] {
+    const vector = new Array(this.vocabulary.length).fill(0);
+    const tokens = this.tokenizeToNgrams(text);
+    tokens.forEach((token) => {
+      const idx = this.vocabulary.indexOf(token);
+      if (idx !== -1) vector[idx] += 1;
+    });
+    return vector;
+  }
+
+  // 4. Generate Changelog tingkat lanjut menggunakan kombinasi N-gram + TF-IDF lokal
   public generateChangelog(commits: string[]): string {
     const groups: Record<Category, string[]> = {
       FEATURES: [],
@@ -255,27 +287,48 @@ export class CommitClassifier {
       MAINTENANCE: [],
     };
     
+    // Bangun Vocabulary Lokal khusus untuk lingkup commit saat ini
     const localVocabSet = new Set<string>();
     commits.forEach((commit) => {
-      this.tokenize(commit).forEach((word) => localVocabSet.add(word));
+      this.tokenizeToNgrams(commit).forEach((token) => localVocabSet.add(token));
     });
     const localVocabulary = Array.from(localVocabSet);
     
-    const textToLocalVector = (text: string): number[] => {
+    // Hitung Document Frequency (DF) untuk formula TF-IDF lokal
+    const docFrequency: Record<string, number> = {};
+    localVocabulary.forEach(token => docFrequency[token] = 0);
+    
+    commits.forEach(commit => {
+      const tokens = new Set(this.tokenizeToNgrams(commit));
+      tokens.forEach(token => {
+        if (docFrequency[token] !== undefined) docFrequency[token]++;
+      });
+    });
+
+    // Transformasi teks commit berjalan ke vektor berbasis TF-IDF murni
+    const textToTFIDFVector = (text: string): number[] => {
       const vector = new Array(localVocabulary.length).fill(0);
-      this.tokenize(text).forEach((word) => {
-        const idx = localVocabulary.indexOf(word);
-        if (idx !== -1) vector[idx] += 1;
+      const tokens = this.tokenizeToNgrams(text);
+      
+      const tfMap: Record<string, number> = {};
+      tokens.forEach(t => tfMap[t] = (tfMap[t] || 0) + 1);
+      
+      localVocabulary.forEach((token, idx) => {
+        if (tfMap[token]) {
+          const tf = tfMap[token] / tokens.length;
+          const idf = Math.log(commits.length / (docFrequency[token] || 1)) + 1;
+          vector[idx] = tf * idf;
+        }
       });
       return vector;
     };
 
     const processedVectors: number[][] = [];
-    const similarityThreshold = 0.85;
+    // Threshold diturunkan ke 0.75 karena seleksi TF-IDF N-gram jauh lebih ketat & sensitif
+    const similarityThreshold = 0.75; 
 
     commits.forEach((commit) => {
-      
-      const currentVector = textToLocalVector(commit);
+      const currentVector = textToTFIDFVector(commit);
 
       let isDuplicateByAI = false;
       for (const existingVector of processedVectors) {
@@ -292,7 +345,8 @@ export class CommitClassifier {
 
       if (!isDuplicateByAI) {
         processedVectors.push(currentVector);
-
+        
+        // Klasifikasi tetap berjalan aman karena textToVector() di atas sudah otomatis dukung N-gram
         const category = this.classify(commit);
         groups[category].push(commit);
       }
